@@ -15,7 +15,7 @@ return {
       -- Ensure basic parsers are installed
       local parsers = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' }
       -- Tell the tree-sitter CLI to build parsers with gcc instead of cl.exe
-      if vim.fn.has 'win32' == 1 then vim.env.CC = 'gcc' end
+      vim.env.CC = 'gcc'
       require('nvim-treesitter').install(parsers)
 
       ---@param buf integer

@@ -4,7 +4,7 @@ return {
     event = 'VimEnter',
     version = '1.*',
     dependencies = {
-      { 'L3MON4D3/LuaSnip', version = '2.*' },
+      { 'L3MON4D3/LuaSnip', version = '2.*', submodules = false },
     },
     config = function()
       -- [[ Snippet Engine ]]
