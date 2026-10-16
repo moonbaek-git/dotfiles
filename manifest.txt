@@ -1,0 +1,8 @@
+# app | linux target | windows target
+# Each app is a folder in this repo. `dot install <app>` links that folder to the target path.
+# "~" means your home folder. Targets must be folders.
+nvim | ~/.config/nvim | ~\AppData\Local\nvim
+
+# Examples - uncomment and fix the paths, then add a matching folder to the repo:
+# wezterm  | ~/.config/wezterm | ~\.config\wezterm
+# obsidian | ~/Documents/MyVault/.obsidian | ~\Documents\MyVault\.obsidian

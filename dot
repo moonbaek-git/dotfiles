@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+# dot - install the dotfiles of one app (or all apps) from a single repo.
+# Only the folders you ask for are downloaded (git sparse checkout + partial clone).
+#
+#   dot install <app...>    download that app's folder and link it into place
+#   dot install all         do it for every app in manifest.txt
+#   dot list                show apps and whether they are installed
+#   dot update              git pull the repo
+#   dot remove <app...>     remove the link (your files stay in the repo)
+set -euo pipefail
+
+REPO_URL="${DOTFILES_REPO:-git@github.com:moonbaek-git/dotfiles.git}"
+DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
+MANIFEST="$DIR/manifest.txt"
+
+die() { echo "dot: $*" >&2; exit 1; }
+
+ensure_repo() {
+  [[ -d $DIR/.git ]] && return
+  git clone --depth 1 --filter=blob:none --sparse "$REPO_URL" "$DIR"
+}
+
+# manifest lines: app | linux target | windows target
+apps() {
+  awk -F'|' '/^[[:space:]]*#/ || NF < 3 { next } { gsub(/^[ \t]+|[ \t]+$/, "", $1); print $1 }' "$MANIFEST"
+}
+
+target_for() {
+  local t
+  t=$(awk -F'|' -v a="$1" '/^[[:space:]]*#/ || NF < 3 { next }
+        { gsub(/^[ \t]+|[ \t]+$/, "", $1); gsub(/^[ \t]+|[ \t]+$/, "", $2) }
+        $1 == a { print $2; exit }' "$MANIFEST")
+  [[ -n $t ]] || return 1
+  echo "${t/#\~/$HOME}"
+}
+
+is_linked() { [[ -L $1 && $(readlink -f "$1") == "$(readlink -f "$2")" ]]; }
+
+install_app() {
+  local app=$1 target src bak
+  target=$(target_for "$app") || die "unknown app '$app' (see: dot list)"
+  git -C "$DIR" sparse-checkout add "$app"
+  src="$DIR/$app"
+  [[ -d $src ]] || die "folder '$app' not found in the repo"
+  if is_linked "$target" "$src"; then echo "$app: already linked"; return; fi
+  if [[ -e $target || -L $target ]]; then
+    bak="$target.bak-$(date +%Y%m%d%H%M%S)"
+    mv "$target" "$bak"
+    echo "$app: existing config moved to $bak"
+  fi
+  mkdir -p "$(dirname "$target")"
+  ln -s "$src" "$target"
+  echo "$app: $target -> $src"
+}
+
+remove_app() {
+  local app=$1 target
+  target=$(target_for "$app") || die "unknown app '$app'"
+  if is_linked "$target" "$DIR/$app"; then rm "$target"; echo "$app: link removed"; else echo "$app: not linked"; fi
+}
+
+cmd=${1:-}
+[[ $# -gt 0 ]] && shift
+case "$cmd" in
+  install)
+    [[ $# -gt 0 ]] || die "usage: dot install <app...|all>"
+    ensure_repo
+    if [[ $1 == all ]]; then set -- $(apps); fi
+    for a in "$@"; do install_app "$a"; done ;;
+  remove)
+    [[ $# -gt 0 ]] || die "usage: dot remove <app...>"
+    for a in "$@"; do remove_app "$a"; done ;;
+  update) git -C "$DIR" pull --ff-only ;;
+  list)
+    for a in $(apps); do
+      t=$(target_for "$a")
+      if is_linked "$t" "$DIR/$a"; then echo "[x] $a  ($t)"; else echo "[ ] $a  ($t)"; fi
+    done ;;
+  *) echo "usage: dot install <app...|all> | remove <app...> | update | list" ;;
+esac
