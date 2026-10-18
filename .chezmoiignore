@@ -1,3 +1,7 @@
 **/.obsidian/workspace*.json
 **/.DS_Store
 .config/mpv/watch_later/**
+
+{{ if ne .chezmoi.os "windows" }}
+.config/mpv/scripts/release-exclusive-on-pause.lua
+{{ end }}
