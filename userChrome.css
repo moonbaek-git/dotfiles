@@ -1,0 +1,129 @@
+/* =========================================================
+   userChrome.css for Firefox 158 (native vertical tabs)
+   - Auto-hiding LEFT sidebar / vertical tabs
+   - Top bar fades in when you hover the top band (your config)
+   - Colors follow your Firefox theme (Appearance panel)
+   Bookmarks bar: about:config
+   browser.toolbars.bookmarks.visibility = newtab
+   ========================================================= */
+
+:root {
+  --uc-speed: 280ms;
+  --uc-sidebar-width: 240px;
+  --uc-hoverzone: 10px;     /* left-edge trigger for the sidebar */
+  --uc-nav-height: 0px;     /* 0 = bar fades in place (page never jumps) */
+  --uc-radius: 10px;
+  --uc-gap: 6px;
+
+  /* neutral tints derived from the current theme's text color */
+  --uc-border: color-mix(in srgb, var(--toolbox-text-color) 12%, transparent);
+  --uc-tint: color-mix(in srgb, var(--toolbox-text-color) 8%, transparent);
+  --uc-tint-strong: color-mix(in srgb, var(--toolbox-text-color) 13%, transparent);
+
+  --window-border-radius: 10px !important;
+  --tab-min-height: 30px !important;
+  --tab-background-color-selected: var(--uc-tint-strong) !important;
+  --content-area-shadow: none !important;
+  --chrome-content-separator-color: transparent !important;
+  --tabs-navbar-separator-style: none !important;
+}
+
+/* ---------- Auto-hiding left sidebar (vertical tabs) ---------- */
+#sidebar-container {
+  position: fixed !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  left: calc(var(--uc-hoverzone) - var(--uc-sidebar-width)) !important;
+  width: var(--uc-sidebar-width) !important;
+  min-width: var(--uc-sidebar-width) !important;
+  max-width: var(--uc-sidebar-width) !important;
+  z-index: 9999 !important;
+  background-color: color-mix(in srgb, var(--toolbox-background-color) 96%, transparent) !important;
+  border-right: 1px solid var(--uc-border) !important;
+  box-shadow: 2px 0 18px rgba(0, 0, 0, 0.35) !important;
+  opacity: 0 !important;   /* hidden: no border, shadow or tint visible at the edge */
+  transition:
+    left var(--uc-speed) cubic-bezier(.16, 1, .3, 1),
+    opacity var(--uc-speed) ease !important;
+}
+
+#sidebar-container:hover,
+#sidebar-container:focus-within {
+  left: 0 !important;
+  opacity: 1 !important;
+}
+
+#sidebar-launcher-splitter,
+#sidebar-splitter {
+  display: none !important;
+}
+
+/* ---------- Top bar: fades in when the toolbox is hovered/focused ---------- */
+#navigator-toolbox {
+  position: relative !important;
+  z-index: 999 !important;
+  background: var(--toolbox-background-color) !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+#nav-bar {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  transition: margin-top var(--uc-speed) ease, opacity var(--uc-speed) ease !important;
+}
+
+#navigator-toolbox:not(:hover, :focus-within, :has(#nav-bar [open])) #nav-bar {
+  margin-top: calc(-1 * var(--uc-nav-height));
+  opacity: 0;
+}
+
+/* On New Tab pages the bar never hides (selected tab is titled "New Tab").
+   Not using English Firefox? Swap the line below for:
+   :root:has(#urlbar[pageproxystate="invalid"]:not([focused])) #nav-bar { */
+:root:has(.tabbrowser-tab[selected][label="New Tab"]) #nav-bar {
+  opacity: 1 !important;
+  margin-top: 0 !important;
+}
+
+/* Quieter toolbar icons until hovered */
+#nav-bar toolbarbutton:not(:hover) {
+  opacity: 0.75;
+}
+
+/* ---------- Look: flat, rounded, theme-aware ---------- */
+#appcontent,
+#browser {
+  background: var(--toolbox-background-color) !important;
+}
+
+#tabbrowser-tabbox {
+  margin: 0 var(--uc-gap) var(--uc-gap) var(--uc-gap) !important;
+}
+
+#tabbrowser-tabpanels,
+#tabbrowser-tabpanels .browserContainer,
+#tabbrowser-tabpanels browser {
+  border-radius: var(--uc-radius) !important;
+}
+
+#tabbrowser-tabpanels {
+  overflow: hidden !important;
+  border: 1px solid var(--uc-border) !important;
+}
+
+/* Pill-shaped, borderless URL bar
+   (for your old rounded-rectangle look use: border-radius: var(--uc-radius)) */
+#urlbar-background {
+  background: var(--uc-tint) !important;
+  border: none !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+}
+
+#urlbar[focused] #urlbar-background {
+  background: var(--uc-tint-strong) !important;
+  outline: 1px solid var(--toolbox-text-color) !important;
+  outline-offset: -1px !important;
+}
