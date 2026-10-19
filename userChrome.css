@@ -62,13 +62,12 @@
 #navigator-toolbox {
   position: relative !important;
   z-index: 999 !important;
-  background: var(--toolbox-background-color) !important;
   border: none !important;
   box-shadow: none !important;
 }
 
 #nav-bar {
-  background: transparent !important;
+  background-color: transparent !important;
   border: none !important;
   box-shadow: none !important;
   transition: margin-top var(--uc-speed) ease, opacity var(--uc-speed) ease !important;
@@ -93,11 +92,6 @@
 }
 
 /* ---------- Look: flat, rounded, theme-aware ---------- */
-#appcontent,
-#browser {
-  background: var(--toolbox-background-color) !important;
-}
-
 #tabbrowser-tabbox {
   margin: 0 var(--uc-gap) var(--uc-gap) var(--uc-gap) !important;
 }
