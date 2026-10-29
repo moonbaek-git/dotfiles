@@ -121,3 +121,26 @@
   outline: 1px solid var(--toolbox-text-color) !important;
   outline-offset: -1px !important;
 }
+
+/* ---------- Fullscreen: video fills the whole screen ---------- */
+:root[inFullscreen] #tabbrowser-tabbox,
+:root[sizemode="fullscreen"] #tabbrowser-tabbox {
+  margin: 0 !important;
+}
+ 
+:root[inFullscreen] #tabbrowser-tabpanels,
+:root[inFullscreen] #tabbrowser-tabpanels .browserContainer,
+:root[inFullscreen] #tabbrowser-tabpanels browser,
+:root[sizemode="fullscreen"] #tabbrowser-tabpanels,
+:root[sizemode="fullscreen"] #tabbrowser-tabpanels .browserContainer,
+:root[sizemode="fullscreen"] #tabbrowser-tabpanels browser {
+  border: none !important;
+  border-radius: 0 !important;
+}
+ 
+/* keep the hover sidebar from popping up while watching fullscreen */
+:root[inFullscreen] #sidebar-container,
+:root[sizemode="fullscreen"] #sidebar-container {
+  display: none !important;
+}
+
